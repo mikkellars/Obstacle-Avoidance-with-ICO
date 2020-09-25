@@ -164,7 +164,7 @@ qtcreator-*
 # Emacs
 .#*
 # Catkin custom files
-# CATKIN_IGNORE
+CATKIN_IGNORE
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json
