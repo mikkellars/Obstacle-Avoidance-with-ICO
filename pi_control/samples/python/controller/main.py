@@ -56,13 +56,21 @@ def init_gpio_pins()->None:
 
 
 def set_left_speed_direction(speed:int, direction:int)->None:
+    """Set left speed direction.
+
+    Args:
+        speed (int): Speed 0 - 100.
+        direction (int): Direction (backwards (-1) or forwards (1))
+    """
+    assert direction > 0 or direction < 0, f'Direction should be below 0 or above 0, got {direction}'
+
     # Reverse
-    if direction <= 0:
+    if direction < 0:
         gpio.setDigital(TB6612_LEFT_MOTOR_BIN1, 'OFF')
         gpio.setDigital(TB6612_LEFT_MOTOR_BIN2, 'ON')
 
     # Forward
-    if direction > 0 or direction >= 1:
+    if direction > 0:
         gpio.setDigital(TB6612_LEFT_MOTOR_BIN1, 'ON')
         gpio.setDigital(TB6612_LEFT_MOTOR_BIN2, 'OFF')
 
@@ -74,13 +82,21 @@ def set_left_speed_direction(speed:int, direction:int)->None:
 
 
 def set_right_speed_direction(speed:int, direction:int)->None:
+    """Set right speed direction
+
+    Args:
+        speed (int): Speed 0 - 100.
+        direction (int): Direction.
+    """
+    assert direction > 0 or direction < 0, f'Direction should be below 0 or above 0, got {direction}'
+
     # Reverse
-    if direction <= 0:
+    if direction < 0:
         gpio.setDigital(TB6612_RIGHT_MOTOR_AIN1, 'OFF')
         gpio.setDigital(TB6612_RIGHT_MOTOR_AIN2, 'ON')
 
     # Forward
-    if direction > 0 or direction >= 1:
+    if direction > 0:
         gpio.setDigital(TB6612_RIGHT_MOTOR_AIN1, 'ON')
         gpio.setDigital(TB6612_RIGHT_MOTOR_AIN2, 'OFF')
 
@@ -104,7 +120,7 @@ def startup_show_led_rainbow()->None:
     rainbow_start = time()
     rainbow_elapsed = time() - rainbow_start
 
-    while rainbow_elapsed < 30.0:
+    while rainbow_elapsed < 15.0:
         # Create rainbow
         for i in range(len(everloop)):
             r = round(max(0, (sin(frequency*counter+(pi/180*240))*155+100)/10))
@@ -134,6 +150,19 @@ def main():
 
     init_gpio_pins()
 
+    drive_start = time()
+    drive_elapsed = time() - drive_start
+
+    while drive_elapsed < 5.0:
+        set_right_speed_direction(40, 1)
+        set_left_speed_direction(40, 1)
+
+        drive_elapsed = time() - drive_start
+
 
 if __name__ == "__main__":
+    print(__doc__)
+    start_time = time()
     main()
+    end_time = time() - start_time
+    print(f'Done! It took {end_time//60:.0f}m {end_time%60:.1f}s.')
