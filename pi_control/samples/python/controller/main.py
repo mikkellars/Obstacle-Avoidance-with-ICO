@@ -118,9 +118,9 @@ def startup_show_led_rainbow()->None:
     tick = len(everloop) - 1
 
     rainbow_start = time()
-    rainbow_elapsed = time() - start_time
+    rainbow_elapsed = time() - rainbow_start
 
-    while elapsed_time < 30.0:
+    while rainbow_elapsed < 15.0:
         # Create rainbow
         for i in range(len(everloop)):
             r = round(max(0, (sin(frequency*counter+(pi/180*240))*155+100)/10))
