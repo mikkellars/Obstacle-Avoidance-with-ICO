@@ -8,6 +8,7 @@ import time
 from threading import Thread
 import importlib.util
 
+
 # Define VideoStream class to handle streaming of video from webcam in separate processing thread
 # Source - Adrian Rosebrock, PyImageSearch: https://www.pyimagesearch.com/2015/12/28/increasing-raspberry-pi-fps-with-python-and-opencv/
 class VideoStream:
@@ -154,9 +155,11 @@ while True:
 
     # Acquire frame and resize to expected shape [1xHxWx3]
     frame = frame1.copy()
+    frame = cv2.flip(frame, 0)
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     frame_resized = cv2.resize(frame_rgb, (width, height))
     input_data = np.expand_dims(frame_resized, axis=0)
+
 
     # Normalize pixel values if using a floating model (i.e. if model is non-quantized)
     if floating_model:
@@ -167,36 +170,48 @@ while True:
     interpreter.invoke()
 
     # Retrieve detection results
-    masks = interpreter.get_tensor(output_details[0]['index'])[0] # Masks of detected objects
+    masks = interpreter.get_tensor(output_details[0]['index'])[0] # Segmentation (img_width x img_height x class predictions)
+    masks = np.array(masks)
+    masks_img = masks.argmax(axis=2)  # Get idx of max prediction. This is the class
+    
+    colors = np.array([[255, 0, 0],
+                       [255, 64, 0],	
+                       [255, 128, 0],	
+                       [255, 191, 0],
+                       [255, 255, 0],	
+                       [191, 255, 0],	
+                       [128, 255, 0],	
+                       [64, 255, 0],	
+                       [0, 255, 0],	
+                       [0, 255, 64],	
+                       [0, 255, 128],	
+                       [0, 255, 191],	
+                       [0, 255, 255],	
+                       [0, 191, 255],	
+                       [0, 128, 255],	
+                       [0, 64, 255],
+                       [0, 0, 255],	
+                       [64, 0, 255],	
+                       [128, 0, 255],
+                       [191, 0, 255],
+                       [255, 0, 255]])
+                       
+    masks_img = np.float32(colors[masks_img])
+    masks_img = cv2.cvtColor(masks_img, cv2.COLOR_RGB2BGR)
+    # # Draw framerate in corner of frame
+    # cv2.putText(masks_img,'FPS: {0:.2f}'.format(frame_rate_calc),(30,50),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,0),2,cv2.LINE_AA)
 
-    #num = interpreter.get_tensor(output_details[3]['index'])[0]  # Total number of detected objects (inaccurate and not needed)
-
-    # Loop over all detections and draw detection box if confidence is above minimum threshold
-    for i in range(len(scores)):
-        if ((scores[i] > min_conf_threshold) and (scores[i] <= 1.0)):
-
-            # Get bounding box coordinates and draw box
-            # Interpreter can return coordinates that are outside of image dimensions, need to force them to be within image using max() and min()
-            ymin = int(max(1,(boxes[i][0] * imH)))
-            xmin = int(max(1,(boxes[i][1] * imW)))
-            ymax = int(min(imH,(boxes[i][2] * imH)))
-            xmax = int(min(imW,(boxes[i][3] * imW)))
-            
-            cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (10, 255, 0), 2)
-
-            # Draw label
-            object_name = labels[int(classes[i])] # Look up object name from "labels" array using class index
-            label = '%s: %d%%' % (object_name, int(scores[i]*100)) # Example: 'person: 72%'
-            labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2) # Get font size
-            label_ymin = max(ymin, labelSize[1] + 10) # Make sure not to draw label too close to top of window
-            cv2.rectangle(frame, (xmin, label_ymin-labelSize[1]-10), (xmin+labelSize[0], label_ymin+baseLine-10), (255, 255, 255), cv2.FILLED) # Draw white box to put label text in
-            cv2.putText(frame, label, (xmin, label_ymin-7), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2) # Draw label text
-
+    # # All the results have been drawn on the frame, so it's time to display it.
+    # cv2.imshow('Object detector', masks_img)
     # Draw framerate in corner of frame
-    cv2.putText(frame,'FPS: {0:.2f}'.format(frame_rate_calc),(30,50),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,0),2,cv2.LINE_AA)
+    
 
     # All the results have been drawn on the frame, so it's time to display it.
-    cv2.imshow('Object detector', frame)
+    cv2.imshow('Object detector', masks_img)
+
+    frame_resized = cv2.resize(frame, (width, height))
+    cv2.putText(frame_resized,'FPS: {0:.2f}'.format(frame_rate_calc),(30,50),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,0),2,cv2.LINE_AA)
+    cv2.imshow('Input img', frame_resized)
 
     # Calculate framerate
     t2 = cv2.getTickCount()
