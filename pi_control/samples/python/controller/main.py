@@ -3,10 +3,14 @@ Controller for the robot.
 """
 
 
+import cv2
 from time import sleep, time
 from math import pi, sin
 from matrix_lite import gpio
 from matrix_lite import led
+from camera import VideoStream
+# from picamera import PiCamera
+# from picamera.array import PiRGBArray
 
 
 # GPIO  via Matrix Voice
@@ -77,7 +81,11 @@ def set_left_speed_direction(speed:int, direction:int)->None:
     # Set motor spped via PWM signal
     if speed > 100: speed = 100
     if speed < 0: speed = 0
-    gpio.setPWM({'pin': TB6612_LEFT_MOTOR_PWMB, 'precentage': speed, 'frequency': 1000})
+    gpio.setPWM({
+        "pin": TB6612_LEFT_MOTOR_PWMB,
+        "percentage": speed,
+        "frequency": 50, # min 36
+    })
 
 
 
@@ -103,7 +111,11 @@ def set_right_speed_direction(speed:int, direction:int)->None:
     # Set motor spped via PWM signal
     if speed > 100: speed = 100
     if speed < 0: speed = 0
-    gpio.setPWM({'pin': TB6612_RIGHT_MOTOR_PWMA, 'precentage': speed, 'frequency': 1000})
+    gpio.setPWM({
+        "pin": TB6612_RIGHT_MOTOR_PWMA,
+        "percentage": speed,
+        "frequency": 50, # min 36
+    })
 
 
 def startup_show_led_rainbow()->None:
@@ -120,7 +132,7 @@ def startup_show_led_rainbow()->None:
     rainbow_start = time()
     rainbow_elapsed = time() - rainbow_start
 
-    while rainbow_elapsed < 15.0:
+    while rainbow_elapsed < 5.0:
         # Create rainbow
         for i in range(len(everloop)):
             r = round(max(0, (sin(frequency*counter+(pi/180*240))*155+100)/10))
@@ -150,14 +162,39 @@ def main():
 
     init_gpio_pins()
 
-    drive_start = time()
-    drive_elapsed = time() - drive_start
+    video_stream = VideoStream().start()
 
-    while drive_elapsed < 5.0:
-        set_right_speed_direction(40, 1)
-        set_left_speed_direction(40, 1)
+    # Super loop
+    while True:
 
-        drive_elapsed = time() - drive_start
+        # ----------------
+        # Get camera input
+        # ----------------
+
+        frame = video_stream.read()
+        frame = cv2.rotate(frame, cv2.ROTATE_180)
+        cv2.imshow('Input image', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+
+        # ----------------
+        # Set motor values
+        # ----------------
+
+        set_right_speed_direction(0, 1)
+        set_left_speed_direction(0, 1)
+
+        # Stop if key 'q' pressed
+        key = cv2.waitKey(30)
+        if key == ord('q'):
+            break
+
+    # -----------
+    # Stop robot
+    # -----------
+
+    set_right_speed_direction(0, 1)
+    set_left_speed_direction(0, 1)
+    cv2.destroyAllWindows()
+    video_stream.stop()
 
 
 if __name__ == "__main__":
