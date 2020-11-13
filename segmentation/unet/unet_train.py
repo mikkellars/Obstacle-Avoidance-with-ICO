@@ -17,7 +17,6 @@ from tensorflow.keras.metrics import Recall, Precision
 from tensorflow.keras.models import Model
 import glob
 import cv2
-from IPython.display import clear_output
 from PIL import Image
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
@@ -31,7 +30,7 @@ def parse_arguments():
     import argparse
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('--model_name', type=str, default='unet', help='name of trained model')
-    parser.add_argument('--backbone', type=str, default='efficientnetb3')
+    parser.add_argument('--backbone', type=str, default='mobilenetv2')
     parser.add_argument('--data_root', type=str, default= '/home/mikkel/Documents/data/ADETrimmed', help='path to dataset')
     parser.add_argument('--save_dir_model', type=str, default='segmentation/unet/models', help='path to save models')
     parser.add_argument('--save_dir_logs', type=str, default='segmentation/unet/logs', help='logs path for tensorboard')
@@ -50,7 +49,7 @@ def create_represent_data(data):
 def save_quantified_model(model, dataset):
     # quantization to easier run on pi or edgetpu
     data = list()
-    for image, _ in dataset['train'].take(100):
+    for image, _ in dataset['train'].take(10):
         data.append(image[0])
     data = np.array(data)
     
@@ -60,8 +59,10 @@ def save_quantified_model(model, dataset):
     # Ensure that if any ops can't be quantized, the converter throws an error
     converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
     # Set the input and output tensors to uint8 (APIs added in r2.3)
-    converter.inference_input_type = tf.uint8
-    converter.inference_output_type = tf.uint8
+    # converter.inference_input_type = tf.uint8
+    # converter.inference_output_type = tf.uint8
+    converter.allow_custom_ops = True
+    converter.experimental_new_converter = False
 
     tflite_model_quant = converter.convert()
 
@@ -71,14 +72,14 @@ def save_quantified_model(model, dataset):
 def save_tf_lite_model(model):
     # OPS! CAN ONLY CONVERT THE MODEL WITH TENSORFLOW 2.1
     converter = tf.lite.TFLiteConverter.from_keras_model(model) 
+    converter.optimizations = [tf.lite.Optimize.DEFAULT]
     tfmodel = converter.convert()
-    tflite_model_quant = converter.convert()
     open(f'{args.save_dir_model}/best_model_unet.tflite' , "wb").write(tfmodel)
 
 def main(args):
         
     # Data download
-    img_size = 96
+    img_size = 224
     n_channels = 3
     batch_size = 1
 
@@ -106,10 +107,10 @@ def main(args):
 
     preprocess_input = sm.get_preprocessing(BACKBONE)
 
-    model = sm.Unet(BACKBONE, encoder_weights='imagenet', activation='softmax', encoder_freeze=True, classes=N_CLASSES, input_shape=(img_size, img_size, n_channels))
+    model = sm.Unet(BACKBONE, encoder_weights='imagenet',  encoder_freeze=True, classes=N_CLASSES, input_shape=(img_size, img_size, n_channels))
     # Segmentation models losses can be combined together by '+' and scaled by integer or float factor
     # set class weights for dice_loss (car: 1.; pedestrian: 2.; background: 0.5;)
-    dice_loss = sm.losses.DiceLoss(class_weights=np.array([1, 2, 2, 0.5])) 
+    dice_loss = sm.losses.DiceLoss(class_weights=np.array([1, 1, 0.5])) 
     focal_loss = sm.losses.BinaryFocalLoss() if N_CLASSES == 1 else sm.losses.CategoricalFocalLoss()
     total_loss = dice_loss + (1 * focal_loss)
 
@@ -121,16 +122,18 @@ def main(args):
     # compile keras model with defined optimozer, loss and metrics
     model.compile(
         'Adam',
-        loss=total_loss,
+        #loss=total_loss,
+        loss=sm.losses.cce_jaccard_loss,
         metrics=metrics,
     )
-
-    # # pretrain model decoder (frozen encoder)
-    # model.fit(dataset['train'], epochs=50,
-    #                     steps_per_epoch=STEPS_PER_EPOCH,
-    #                     validation_steps=VALIDATION_STEPS,
-    #                     validation_data=dataset['val'],
-    #                     callbacks=callbacks)
+    
+    #pretrain model decoder (frozen encoder)
+    model.fit(dataset['train'],
+              epochs=100,
+              steps_per_epoch=STEPS_PER_EPOCH,
+              validation_steps=VALIDATION_STEPS,
+              validation_data=dataset['val'],
+              callbacks=callbacks)
 
     # # release all layers for training
     # set_trainable(model) # set all layers trainable and recompile model
@@ -145,9 +148,9 @@ def main(args):
     #                     callbacks=callbacks)
 
     model.load_weights(f'{args.save_dir_model}/best_model_unet.h5') # Getting best weights based on saved validation model
-    save_tf_lite_model(model)
-
-    show_predictions(model, dataset['val'], 14, datagenerator.get_indx_to_color())
+    #save_tf_lite_model(model)
+    save_quantified_model(model, dataset) # Does not support keras.softmax beacuse it uses tf.reduce_max
+    show_predictions(model, dataset['val'], datagenerator.val_data_size, datagenerator.get_indx_to_color())
 
 if __name__ == '__main__':
     print(__doc__)

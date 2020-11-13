@@ -41,7 +41,7 @@ def trim_dataset(data_path:str, save_path:str, trimmed_imgs:list):
 data_path = "/home/mikkel/Documents/data/ADEChallengeData2016"
 save_path = "/home/mikkel/Documents/data/ADETrimmed"
 
-want_classes = ["corridor", "box", "conference_room", "living_room", "alcove", "cabin_indoor"]
+want_classes = ["corridor"]#, "box", "conference_room", "living_room", "alcove", "cabin_indoor"]
 
 trim_imgs = sort_scene_categories(data_path, want_classes)
 trim_dataset(data_path, save_path, trim_imgs)

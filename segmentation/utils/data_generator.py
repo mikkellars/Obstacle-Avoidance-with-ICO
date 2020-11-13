@@ -17,6 +17,7 @@ import glob
 import cv2
 from IPython.display import clear_output
 import albumentations as A
+import random
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
 class gen_ade20k():
@@ -27,8 +28,8 @@ class gen_ade20k():
         self.min_dataset_classes = self.__get_minimized_ada20k_classes()
         self.n_classes = len(self.min_dataset_classes)
         print(f"The dataset has {self.n_classes} classes")
-        self.train_data_size =  len(glob.glob(dataset_path + train_folder + "*.jpg"))
-        self.val_data_size =  len(glob.glob(dataset_path + val_folder + "*.jpg"))
+        self.train_data_size =  len(glob.glob(dataset_path + train_folder + "*.png"))
+        self.val_data_size =  len(glob.glob(dataset_path + val_folder + "*.png"))
         print(f"The Training Dataset contains {self.train_data_size} images.")
         print(f"The Validation Dataset contains {self.val_data_size} images.")
         self.backbone = backbone
@@ -36,16 +37,16 @@ class gen_ade20k():
        # self.__parse_image("/home/mikkel/Documents/data/ADETrimmed/annotations/training/ADE_train_00006255.png")
 
         # -- Train Dataset --#
-        self.train_dataset = tf.data.Dataset.list_files(dataset_path + train_folder + "*.jpg")
+        self.train_dataset = tf.data.Dataset.list_files(dataset_path + train_folder + "*.png")
         self.train_dataset = self.train_dataset.map(self.__parse_image)
         self.train_dataset = self.train_dataset.map(self.load_image_train, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-        self.train_dataset = self.train_dataset.shuffle(buffer_size=200)
+        self.train_dataset = self.train_dataset.shuffle(buffer_size=500)
         self.train_dataset = self.train_dataset.repeat()
         self.train_dataset = self.train_dataset.batch(batch_size)
         self.train_dataset = self.train_dataset.prefetch(buffer_size=AUTOTUNE)
 
         #-- Validation Dataset --#
-        self.val_dataset = tf.data.Dataset.list_files(dataset_path + val_folder + "*.jpg")
+        self.val_dataset = tf.data.Dataset.list_files(dataset_path + val_folder + "*.png")
         self.val_dataset = self.val_dataset.map(self.__parse_image)
         self.val_dataset = self.val_dataset.map(self.load_image_test)
         self.val_dataset = self.val_dataset.repeat()
@@ -128,12 +129,12 @@ class gen_ade20k():
 
     @staticmethod
     def get_indx_to_color():
-        colors = np.array([[255, 0, 0], # wall - red
+        colors = np.array([#[255, 0, 0], # wall - red
               #  [0, 255, 0],	# door - green
                 [0, 0, 255],	# floor - blue
                # [255, 0, 255], # furniture - magenta
-               # [255, 255, 0], # person - yellow
-               # [0, 255, 255], # box	- cyan
+                [255, 255, 0], # person - yellow
+                [255, 0, 0], # box	- red
                 [0, 0, 0], # others - black
                 ])
         return colors
@@ -143,12 +144,12 @@ class gen_ade20k():
     def __get_minimized_ada20k_classes(self):
         class_numbers = list(range(0,151))
         min_ada20k_classes = {
-            'wall': (1,9,28,33,43,44,145,147, 15, 59),  # <- 9(window), 28(mirror), 33(fence), 43(pillar), 44(sign board), 145(bullertin board), 147(radiator)
+            #'wall': (1,9,28,33,43,44,145,147, 15, 59),  # <- 9(window), 28(mirror), 33(fence), 43(pillar), 44(sign board), 145(bullertin board), 147(radiator)
             #'door': (15,59), # <- 59(screen door)    
             'floor': (4,7,14,29,30,53,55),     # <- 7(road), 14(ground), 29(rug), 30(field), 53(path), 55(runway)
            # 'furniture': (8,11,16,19,20,24,25,31,34,36,45,46), # <- 8(bed), 11(cabinet), 14(sofa), 16(table), 19(curtain), 20(chair), 25(shelf), 31(armchair), 34(desk), 36(wardrobe), 45(dresser), 46(counter) 
             'person' : (13),
-            #'box': (42) 
+            'box': (42) 
         }
 
         # Adds remaining classes to dict
@@ -282,32 +283,37 @@ class gen_ade20k():
         tuple
             A modified image and its annotation.
         """
-       
-        input_image = tf.image.resize(datapoint['image'], (self.img_size, self.img_size))
-        input_mask = tf.image.resize(datapoint['segmentation_mask'], (self.img_size, self.img_size))
-        def augmentations(input_image, input_mask):
-            aug = A.HorizontalFlip(p=0.5)(image=input_image, mask=input_mask)
+        input_image = datapoint['image']
+        input_mask = datapoint['segmentation_mask']
 
-            aug = A.ShiftScaleRotate(scale_limit=0.5, rotate_limit=0, shift_limit=0.1, p=1, border_mode=0)(image=aug['image'], mask=aug['mask'])
+        if tf.random.uniform(()) > 0.5:
+            input_image = tf.image.flip_left_right(input_image)
+            input_mask = tf.image.flip_left_right(input_mask)
 
-            aug = A.PadIfNeeded(min_height=self.img_size, min_width=self.img_size, always_apply=True, border_mode=0)(image=aug['image'], mask=aug['mask'])
-            aug = A.RandomCrop(height=self.img_size, width=self.img_size, always_apply=True)(image=aug['image'], mask=aug['mask'])
+        if tf.random.uniform(()) > 0.5:
+            input_image = tf.image.random_crop(input_image, size=[self.img_size//4, self.img_size//4, 3], seed=1)
+            input_mask = tf.image.random_crop(input_mask, size=[self.img_size//4, self.img_size//4, self.n_classes], seed=1)
 
-            aug['image'] = A.IAAAdditiveGaussianNoise(p=0.2)(image=aug['image'])
-            aug['image'] = A.IAAPerspective(p=0.5)(image=aug['image'])
+        # Only image augmentations
+        if tf.random.uniform(()) > 0.5: # Saturation
+            input_image = tf.image.random_saturation(input_image, 0.1, 3.0)
 
-            aug['image'] = A.OneOf([A.CLAHE(p=1), A.RandomBrightness(p=1), A.RandomGamma(p=1)], p=0.9)(image=aug['image'])
+        if tf.random.uniform(()) > 0.5: # Brightness
+            input_image = tf.image.random_brightness(input_image, 0.1, 1.0)
 
-            aug['image'] = A.OneOf([A.IAASharpen(p=1), A.Blur(blur_limit=3, p=1), A.MotionBlur(blur_limit=3, p=1)], p=0.9)(image=aug['image'])
+        if tf.random.uniform(()) > 0.5: # Contrast
+            input_image = tf.image.random_contrast(input_image, 0.1, 0.5)
 
-            aug['image'] = A.OneOf([A.RandomContrast(p=1), A.HueSaturationValue(p=1)], p=0.9)(image=aug['image'])
+        if tf.random.uniform(()) > 0.5: # HUE
+            input_image = tf.image.random_hue(input_image, 0.2)        
 
-            aug['image'] = A.Lambda(image=self.backbone)(image=aug['image'])
+        input_image, input_mask = self.normalize(input_image, input_mask)
 
-            return aug['image'], aug['mask']
-    
-        aug_img, aug_mask = tf.numpy_function(func=augmentations, inp=[input_image, input_mask], Tout=tf.float32)
-        return aug_img, aug_mask
+        input_image = tf.image.resize(input_image, (self.img_size, self.img_size))
+        input_mask = tf.image.resize(input_mask, (self.img_size, self.img_size))
+
+        return input_image, input_mask
+
 
     @tf.function
     def load_image_test(self, datapoint: dict) -> tuple:
@@ -336,8 +342,8 @@ class gen_ade20k():
         return input_image, input_mask
 
         
-DATA_PATH = '/home/mikkel/Documents/data/ADETrimmed'
-datagenerator = gen_ade20k(DATA_PATH, '/images/training/', '/images/validation/')
+# DATA_PATH = '/home/mikkel/Documents/data/ADETrimmed'
+# datagenerator = gen_ade20k(DATA_PATH, '/images/training/', '/images/validation/')
 # for image, mask in dataset['val'].take(1):
 #     sample_image, sample_mask = image, mask
 

@@ -1,6 +1,7 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image
 
 def display_sample(display_list, colors=None):
     """Show side-by-side an input image,
