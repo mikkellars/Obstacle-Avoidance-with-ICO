@@ -30,8 +30,8 @@ def parse_arguments():
     import argparse
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('--model_name', type=str, default='unet', help='name of trained model')
-    parser.add_argument('--backbone', type=str, default='mobilenetv2')
-    parser.add_argument('--data_root', type=str, default= '/home/mikkel/Documents/data/ADETrimmed', help='path to dataset')
+    parser.add_argument('--backbone', type=str, default='resnet50')
+    parser.add_argument('--data_root', type=str, default= 'segmentation/data', help='path to dataset')
     parser.add_argument('--save_dir_model', type=str, default='segmentation/unet/models', help='path to save models')
     parser.add_argument('--save_dir_logs', type=str, default='segmentation/unet/logs', help='logs path for tensorboard')
    #"" parser.add_argument('--epochs', type=int, default=10, help='number of epochs (default: 100)')
@@ -79,12 +79,12 @@ def save_tf_lite_model(model):
 def main(args):
         
     # Data download
-    img_size = 224
+    img_size = 96
     n_channels = 3
     batch_size = 1
 
     DATA_PATH = args.data_root
-    datagenerator = gen_ade20k(DATA_PATH, '/images/training/', '/images/validation/',batch_size, img_size, n_channels)
+    datagenerator = gen_ade20k(DATA_PATH, '/train/', '/val/', batch_size, img_size, n_channels)
     dataset = datagenerator.get_datasets()
 
     N_CLASSES = datagenerator.n_classes
@@ -148,8 +148,8 @@ def main(args):
     #                     callbacks=callbacks)
 
     model.load_weights(f'{args.save_dir_model}/best_model_unet.h5') # Getting best weights based on saved validation model
-    #save_tf_lite_model(model)
-    save_quantified_model(model, dataset) # Does not support keras.softmax beacuse it uses tf.reduce_max
+    # save_tf_lite_model(model)
+    # save_quantified_model(model, dataset) # Does not support keras.softmax beacuse it uses tf.reduce_max
     show_predictions(model, dataset['val'], datagenerator.val_data_size, datagenerator.get_indx_to_color())
 
 if __name__ == '__main__':

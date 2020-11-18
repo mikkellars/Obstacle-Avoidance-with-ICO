@@ -28,8 +28,8 @@ class gen_ade20k():
         self.min_dataset_classes = self.__get_minimized_ada20k_classes()
         self.n_classes = len(self.min_dataset_classes)
         print(f"The dataset has {self.n_classes} classes")
-        self.train_data_size =  len(glob.glob(dataset_path + train_folder + "*.png"))
-        self.val_data_size =  len(glob.glob(dataset_path + val_folder + "*.png"))
+        self.train_data_size =  len(glob.glob(dataset_path + train_folder + "images/*.png"))
+        self.val_data_size =  len(glob.glob(dataset_path + val_folder + "images/*.png"))
         print(f"The Training Dataset contains {self.train_data_size} images.")
         print(f"The Validation Dataset contains {self.val_data_size} images.")
         self.backbone = backbone
@@ -37,7 +37,7 @@ class gen_ade20k():
        # self.__parse_image("/home/mikkel/Documents/data/ADETrimmed/annotations/training/ADE_train_00006255.png")
 
         # -- Train Dataset --#
-        self.train_dataset = tf.data.Dataset.list_files(dataset_path + train_folder + "*.png")
+        self.train_dataset = tf.data.Dataset.list_files(dataset_path + train_folder + "images/*.png")
         self.train_dataset = self.train_dataset.map(self.__parse_image)
         self.train_dataset = self.train_dataset.map(self.load_image_train, num_parallel_calls=tf.data.experimental.AUTOTUNE)
         self.train_dataset = self.train_dataset.shuffle(buffer_size=500)
@@ -46,7 +46,7 @@ class gen_ade20k():
         self.train_dataset = self.train_dataset.prefetch(buffer_size=AUTOTUNE)
 
         #-- Validation Dataset --#
-        self.val_dataset = tf.data.Dataset.list_files(dataset_path + val_folder + "*.png")
+        self.val_dataset = tf.data.Dataset.list_files(dataset_path + val_folder + "images/*.png")
         self.val_dataset = self.val_dataset.map(self.__parse_image)
         self.val_dataset = self.val_dataset.map(self.load_image_test)
         self.val_dataset = self.val_dataset.repeat()
@@ -129,14 +129,21 @@ class gen_ade20k():
 
     @staticmethod
     def get_indx_to_color():
-        colors = np.array([#[255, 0, 0], # wall - red
-              #  [0, 255, 0],	# door - green
-                [0, 0, 255],	# floor - blue
-               # [255, 0, 255], # furniture - magenta
-                [255, 255, 0], # person - yellow
-                [255, 0, 0], # box	- red
-                [0, 0, 0], # others - black
-                ])
+        # colors = np.array([#[255, 0, 0], # wall - red
+        #        [0, 255, 0],	# door - green
+        #         [0, 0, 255],	# floor - blue
+        #        # [255, 0, 255], # furniture - magenta
+        #         [255, 255, 255], # person - yellow
+        #         [255, 0, 0], # box	- red
+        #         [0, 0, 0], # others - black
+        #         ])
+        colors = np.array([
+            [0, 0, 255],
+            [0, 255, 0],
+            [255, 0, 0],
+            [255, 255, 255],
+            [0, 0, 0],
+        ])
         return colors
     # -------------------
     # Private functions 
@@ -144,12 +151,12 @@ class gen_ade20k():
     def __get_minimized_ada20k_classes(self):
         class_numbers = list(range(0,151))
         min_ada20k_classes = {
-            #'wall': (1,9,28,33,43,44,145,147, 15, 59),  # <- 9(window), 28(mirror), 33(fence), 43(pillar), 44(sign board), 145(bullertin board), 147(radiator)
+            'wall': (2,9,28,33,43,44,145,147, 15, 59),  # <- 9(window), 28(mirror), 33(fence), 43(pillar), 44(sign board), 145(bullertin board), 147(radiator)
             #'door': (15,59), # <- 59(screen door)    
-            'floor': (4,7,14,29,30,53,55),     # <- 7(road), 14(ground), 29(rug), 30(field), 53(path), 55(runway)
+            'floor': (1,7,14,29,30,53,55),     # <- 7(road), 14(ground), 29(rug), 30(field), 53(path), 55(runway)
            # 'furniture': (8,11,16,19,20,24,25,31,34,36,45,46), # <- 8(bed), 11(cabinet), 14(sofa), 16(table), 19(curtain), 20(chair), 25(shelf), 31(armchair), 34(desk), 36(wardrobe), 45(dresser), 46(counter) 
-            'person' : (13),
-            'box': (42) 
+            'person' : (4),
+            'box': (3) 
         }
 
         # Adds remaining classes to dict
