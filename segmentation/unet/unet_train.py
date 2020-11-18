@@ -30,7 +30,7 @@ def parse_arguments():
     import argparse
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('--model_name', type=str, default='unet', help='name of trained model')
-    parser.add_argument('--backbone', type=str, default='mobilenetv2')
+    parser.add_argument('--backbone', type=str, default='resnet50')
     parser.add_argument('--data_root', type=str, default= '/home/mikkel/Documents/data/ADETrimmed', help='path to dataset')
     parser.add_argument('--save_dir_model', type=str, default='segmentation/unet/models', help='path to save models')
     parser.add_argument('--save_dir_logs', type=str, default='segmentation/unet/logs', help='logs path for tensorboard')
@@ -79,7 +79,7 @@ def save_tf_lite_model(model):
 def main(args):
         
     # Data download
-    img_size = 224
+    img_size = 96
     n_channels = 3
     batch_size = 1
 
@@ -107,7 +107,7 @@ def main(args):
 
     preprocess_input = sm.get_preprocessing(BACKBONE)
 
-    model = sm.Unet(BACKBONE, encoder_weights='imagenet',  encoder_freeze=True, classes=N_CLASSES, input_shape=(img_size, img_size, n_channels))
+    model = sm.PSPNet(BACKBONE, encoder_weights='imagenet',  encoder_freeze=True, classes=N_CLASSES, input_shape=(img_size, img_size, n_channels))
     # Segmentation models losses can be combined together by '+' and scaled by integer or float factor
     # set class weights for dice_loss (car: 1.; pedestrian: 2.; background: 0.5;)
     dice_loss = sm.losses.DiceLoss(class_weights=np.array([1, 1, 0.5])) 
@@ -144,12 +144,12 @@ def main(args):
     # model.fit(dataset['train'], epochs=100,
     #                     steps_per_epoch=STEPS_PER_EPOCH,
     #                     validation_steps=VALIDATION_STEPS,
-    #                     validation_data=dataset['val'],
+    #                     validation_data=dataset['val'],   
     #                     callbacks=callbacks)
 
     model.load_weights(f'{args.save_dir_model}/best_model_unet.h5') # Getting best weights based on saved validation model
-    #save_tf_lite_model(model)
-    save_quantified_model(model, dataset) # Does not support keras.softmax beacuse it uses tf.reduce_max
+    save_tf_lite_model(model)
+    #save_quantified_model(model, dataset) # Does not support keras.softmax beacuse it uses tf.reduce_max
     show_predictions(model, dataset['val'], datagenerator.val_data_size, datagenerator.get_indx_to_color())
 
 if __name__ == '__main__':
