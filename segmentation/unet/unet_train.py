@@ -148,8 +148,8 @@ def main(args):
     #                     callbacks=callbacks)
 
     model.load_weights(f'{args.save_dir_model}/best_model_unet.h5') # Getting best weights based on saved validation model
-    # save_tf_lite_model(model)
-    # save_quantified_model(model, dataset) # Does not support keras.softmax beacuse it uses tf.reduce_max
+    save_tf_lite_model(model)
+    save_quantified_model(model, dataset) # Does not support keras.softmax beacuse it uses tf.reduce_max
     show_predictions(model, dataset['val'], datagenerator.val_data_size, datagenerator.get_indx_to_color())
 
 if __name__ == '__main__':

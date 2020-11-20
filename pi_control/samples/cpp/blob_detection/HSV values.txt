@@ -1,6 +1,0 @@
-LowH = 79
-HighH = 179
-LowS = 9
-HighS = 255
-LowV = 0
-HighV = 33
