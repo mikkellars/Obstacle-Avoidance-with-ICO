@@ -92,7 +92,7 @@ def main(args):
     # Callbacks for training
     callbacks = [
         # to collect some useful metrics and visualize them in tensorboard
-        # tensorboard_callback,
+        tf.keras.callbacks.TensorBoard('segmentation/unet/logs', histogram_freq=1),
         # if no accuracy improvements we can stop the training directly
         #tf.keras.callbacks.EarlyStopping(patience=10, verbose=1),
         # to save checkpoints
@@ -129,23 +129,23 @@ def main(args):
     
     #pretrain model decoder (frozen encoder)
     model.fit(dataset['train'],
-              epochs=100,
+              epochs=25,
               steps_per_epoch=STEPS_PER_EPOCH,
               validation_steps=VALIDATION_STEPS,
               validation_data=dataset['val'],
               callbacks=callbacks)
 
     # # release all layers for training
-    # set_trainable(model) # set all layers trainable and recompile model
+    set_trainable(model) # set all layers trainable and recompile model
 
     # continue training
    
    # model.load_weights(f'{args.save_dir_model}/best_model_unet.h5') # Getting best weights based on saved validation model
-    # model.fit(dataset['train'], epochs=100,
-    #                     steps_per_epoch=STEPS_PER_EPOCH,
-    #                     validation_steps=VALIDATION_STEPS,
-    #                     validation_data=dataset['val'],
-    #                     callbacks=callbacks)
+    model.fit(dataset['train'], epochs=25,
+                        steps_per_epoch=STEPS_PER_EPOCH,
+                        validation_steps=VALIDATION_STEPS,
+                        validation_data=dataset['val'],
+                        callbacks=callbacks)
 
     model.load_weights(f'{args.save_dir_model}/best_model_unet.h5') # Getting best weights based on saved validation model
     save_tf_lite_model(model)
