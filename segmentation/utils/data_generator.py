@@ -38,7 +38,11 @@ class gen_ade20k():
         # -- Train Dataset --#
         self.train_dataset = tf.data.Dataset.list_files(dataset_path + train_folder + "images/*.png")
         self.train_dataset = self.train_dataset.map(self.__parse_image)
+<<<<<<< HEAD
         self.train_dataset = self.train_dataset.map(self.load_image_train, num_parallel_calls=AUTOTUNE)
+=======
+        self.train_dataset = self.train_dataset.map(self.load_image_train, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+>>>>>>> f9b422f478b10ac3c8a9f3adc4a6cf1e3bff2675
         self.train_dataset = self.train_dataset.shuffle(buffer_size=1000)
         self.train_dataset = self.train_dataset.repeat()
         self.train_dataset = self.train_dataset.batch(batch_size)
