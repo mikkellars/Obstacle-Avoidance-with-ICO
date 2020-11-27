@@ -54,7 +54,7 @@ class VideoStream:
 # Define and parse input arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--modeldir', default="segmentation/unet/models/", help='Folder the .tflite file is located in')
-parser.add_argument('--graph', default='best_model_unet_quant_edgetpu.tflite', help='Name of the .tflite file, if different than detect.tflite')
+parser.add_argument('--graph', default='best_model_pspnet_quant.tflite', help='Name of the .tflite file, if different than detect.tflite')
 parser.add_argument('--resolution', default='1280x720', help='Desired webcam resolution in WxH. If the webcam does not support the resolution entered, errors may occur.')
 parser.add_argument('--edgetpu', default=True, help='Use Coral Edge TPU Accelerator to speed up detection')
 
