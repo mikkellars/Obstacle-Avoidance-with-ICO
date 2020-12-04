@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 import os
 
-data_path = "segmentation/data/hallway"
-save_dir = 'segmentation/data'
+data_path = "/home/mikkel/Documents/data/uni_hallway_segmentation"
+save_dir = '/home/mikkel/Documents/data/uni_hallway_segmentation'
 
 def sort_scene_categories(path:str, save_dir:str)->None:
     def create_folder(folder:str, files:list)->None:
