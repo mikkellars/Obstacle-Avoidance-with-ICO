@@ -9,6 +9,7 @@ import time
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.ndimage.filters import gaussian_filter
 
 
 class BBoxWidget:
@@ -176,6 +177,7 @@ def get_trajectory(file:str)->tuple:
             break
 
     cv2.destroyAllWindows()
+    cap.release()
 
     return np.array(xs), np.array(ys)
 
@@ -184,7 +186,7 @@ if __name__ == '__main__':
     print(__doc__)
     start_time = time.time()
 
-    save_dir = '/home/mathias/Documents/project_in_ai/data_analyse/assets/test1'
+    save_dir = '/home/mathias/Documents/project_in_ai/data_analyse/data/test1'
 
     files = [
         '/home/mathias/Documents/project_in_ai/data_analyse/data/test1/01.mp4',
@@ -193,17 +195,18 @@ if __name__ == '__main__':
     ]
 
     for i, f in enumerate(files):
-        xs, ys = get_trajectory(f)
-        plt.plot(xs, ys, label=str(i))
+        xs, ys = get_trajectory(file=f)
+        xs = gaussian_filter(xs, sigma=10)
+        ys = gaussian_filter(ys, sigma=10)
+        plt.plot(xs, ys, label=f'Iteration {i}')
     
     plt.grid()
     plt.legend()
-    plt.xticks([])
-    plt.yticks([])
+    plt.xlabel('Width of image [pixels]')
+    plt.ylabel('Height of image [pixels]')
     plt.savefig(f'{save_dir}/trajectory.png')
     plt.show()
     plt.close('all')
 
     end_time = time.time() - start_time
     print(f'It took {end_time//60} minutes and {end_time%60.0} seconds')
-    exit(0)
