@@ -9,6 +9,7 @@ import time
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+from natsort import natsorted
 from scipy.ndimage.filters import gaussian_filter
 
 
@@ -182,22 +183,29 @@ def get_trajectory(file:str)->tuple:
     return np.array(xs), np.array(ys)
 
 
-if __name__ == '__main__':
-    print(__doc__)
-    start_time = time.time()
+def predict_trajectory(name:str, iterations:int, save_dir:str):
+    folder = f'data_analyse/object_detection/runs/detect/{name}/labels'
+    labels = [os.path.join(folder, f) for f in os.listdir(folder)]
+    labels = natsorted(labels)
+    
+    data = dict()
+    for i in range(iterations):
+        data[str(i)] = list()
+    
+    for l in labels:
+        for i in range(iterations):
+            f = f'{folder}/{name}_{i+1:01d}'
+            if l.startswith(f):
+                line = open(l).readlines()[0].replace('\n','').split(' ')
+                line = [float(l) for l in line]
+                cx = line[1] + line[3] # line[1] + (line[3] - line[1])
+                cy = line[2] + line[4] # line[2] + (line[4] - line[2])
+                data[str(i)].append((cx, cy))
 
-    save_dir = '/home/mathias/Documents/project_in_ai/data_analyse/data/test1'
-
-    files = [
-        '/home/mathias/Documents/project_in_ai/data_analyse/data/test1/01.mp4',
-        '/home/mathias/Documents/project_in_ai/data_analyse/data/test1/02.mp4',
-        '/home/mathias/Documents/project_in_ai/data_analyse/data/test1/03.mp4',
-    ]
-
-    for i, f in enumerate(files):
-        xs, ys = get_trajectory(file=f)
-        xs = gaussian_filter(xs, sigma=10)
-        ys = gaussian_filter(ys, sigma=10)
+    for i in range(iterations):
+        d = np.array(data[str(i)])
+        xs = gaussian_filter(d[:, 0], sigma=10)
+        ys = gaussian_filter(d[:, 1], sigma=10)
         plt.plot(xs, ys, label=f'Iteration {i}')
     
     plt.grid()
@@ -207,6 +215,17 @@ if __name__ == '__main__':
     plt.savefig(f'{save_dir}/trajectory.png')
     plt.show()
     plt.close('all')
+
+
+if __name__ == '__main__':
+    print(__doc__)
+    start_time = time.time()
+
+    data = predict_trajectory(
+        name='box_left',
+        iterations=4,
+        save_dir='data_analyse/data/test_box_left'
+    )
 
     end_time = time.time() - start_time
     print(f'It took {end_time//60} minutes and {end_time%60.0} seconds')
