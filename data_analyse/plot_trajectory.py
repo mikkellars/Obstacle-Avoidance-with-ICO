@@ -9,6 +9,7 @@ import time
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 from natsort import natsorted
 from scipy.ndimage.filters import gaussian_filter
 
@@ -183,7 +184,7 @@ def get_trajectory(file:str)->tuple:
     return np.array(xs), np.array(ys)
 
 
-def predict_trajectory(name:str, iterations:int, save_dir:str):
+def predict_trajectory(name:str, obs:tuple, iterations:int, save_dir:str):
     folder = f'data_analyse/object_detection/runs/detect/{name}/labels'
     labels = [os.path.join(folder, f) for f in os.listdir(folder)]
     labels = natsorted(labels)
@@ -202,29 +203,70 @@ def predict_trajectory(name:str, iterations:int, save_dir:str):
                 cy = line[2] + line[4] # line[2] + (line[4] - line[2])
                 data[str(i)].append((cx, cy))
 
+    legends, names = list(), list()
     for i in range(iterations):
         d = np.array(data[str(i)])
-        xs = gaussian_filter(d[:, 0], sigma=10)
-        ys = gaussian_filter(d[:, 1], sigma=10)
-        plt.plot(xs, ys, label=f'Iteration {i}')
+        xs = gaussian_filter(d[:, 0], sigma=5)
+        ys = gaussian_filter(d[:, 1], sigma=5)
+        label, = plt.plot(xs, ys)
+        legends.append(label)
+        names.append(f'Iteration {i}')
+
+        start_dot, = plt.plot(d[0, 0], d[0, 1], 'go', markersize=10) 
+        end_dot, = plt.plot(d[-1, 0], d[-1, 1], 'bo', markersize=10)
     
+    legends.extend([start_dot, end_dot])
+    names.extend(['start', 'End'])
+
     plt.grid()
-    plt.legend()
+    plt.legend(legends, names)
     plt.xlabel('Width of image [pixels]')
     plt.ylabel('Height of image [pixels]')
+    
+    # plt.Rectangle((obs[0], obs[1]), obs[2] - obs[0], obs[3] - obs[1], fill=True, edgecolor=(1,0,0), linewidth=2.5)
+    currentAxis = plt.gca()
+    currentAxis.add_patch(Rectangle((obs[0], obs[1]), obs[2] - obs[0], obs[3] - obs[1], fill=True, alpha=1, color='r'))
+    
     plt.savefig(f'{save_dir}/trajectory.png')
     plt.show()
     plt.close('all')
+
+
+def get_obstacle(filename:str):
+    cap = cv2.VideoCapture(filename)
+    ret, frame = cap.read()
+
+    bbox_widget = BBoxWidget(image=frame)
+    while True:
+        cv2.imshow('image', bbox_widget.show_image())
+        key = cv2.waitKey(1)
+        if key == ord('q'):
+            break
+    
+    bbox = bbox_widget.get_bbox()
+    xmin, ymin, xmax, ymax = bbox[0][0], bbox[0][1], bbox[1][0], bbox[1][1]
+
+    im_h, im_w = frame.shape[:2]
+    xmin = xmin/im_w
+    ymin = ymin/im_h
+    xmax = xmax/im_w
+    ymax = ymax/im_h
+
+    cv2.destroyAllWindows()
+    return (xmin, ymin, xmax, ymax)
 
 
 if __name__ == '__main__':
     print(__doc__)
     start_time = time.time()
 
+    obs = get_obstacle('data_analyse/data/test_box_right/box_right_1.mp4')
+
     data = predict_trajectory(
-        name='box_left',
-        iterations=4,
-        save_dir='data_analyse/data/test_box_left'
+        name='box_right',
+        obs=obs,
+        iterations=3,
+        save_dir='data_analyse/data/test_box_right'
     )
 
     end_time = time.time() - start_time
