@@ -49,7 +49,7 @@ def create_represent_data(data):
 def save_quantified_model(model, dataset):
     # quantization to easier run on pi or edgetpu
     data = list()
-    for image, _ in dataset['train'].take(10):
+    for image, _ in dataset['train'].take(100):
         data.append(image[0])
     data = np.array(data)
     
@@ -59,8 +59,8 @@ def save_quantified_model(model, dataset):
     # Ensure that if any ops can't be quantized, the converter throws an error
     converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
     # Set the input and output tensors to uint8 (APIs added in r2.3)
-    # converter.inference_input_type = tf.uint8
-    # converter.inference_output_type = tf.uint8
+    converter.inference_input_type = tf.uint8
+    converter.inference_output_type = tf.uint8
     converter.allow_custom_ops = True
     converter.experimental_new_converter = False
 
@@ -92,11 +92,7 @@ def main(args):
     # Callbacks for training
     callbacks = [
         # to collect some useful metrics and visualize them in tensorboard
-<<<<<<< HEAD
         tf.keras.callbacks.TensorBoard(args.save_dir_logs, histogram_freq=1),
-=======
-        tf.keras.callbacks.TensorBoard('segmentation/unet/logs', histogram_freq=1),
->>>>>>> f9b422f478b10ac3c8a9f3adc4a6cf1e3bff2675
         # if no accuracy improvements we can stop the training directly
         #tf.keras.callbacks.EarlyStopping(patience=10, verbose=1),
         # to save checkpoints
@@ -130,7 +126,6 @@ def main(args):
         loss=sm.losses.cce_jaccard_loss,
         metrics=metrics,
     )
-<<<<<<< HEAD
 
     # # pretrain model decoder (frozen encoder)
     # model.fit(dataset['train'],
@@ -139,21 +134,10 @@ def main(args):
     #           validation_steps=VALIDATION_STEPS,
     #           validation_data=dataset['val'],
     #           callbacks=callbacks)
-=======
-    
-    #pretrain model decoder (frozen encoder)
-    model.fit(dataset['train'],
-              epochs=25,
-              steps_per_epoch=STEPS_PER_EPOCH,
-              validation_steps=VALIDATION_STEPS,
-              validation_data=dataset['val'],
-              callbacks=callbacks)
->>>>>>> f9b422f478b10ac3c8a9f3adc4a6cf1e3bff2675
 
     # # release all layers for training
-    set_trainable(model) # set all layers trainable and recompile model
+    # set_trainable(model) # set all layers trainable and recompile model
 
-<<<<<<< HEAD
     # # continue training
     # model.load_weights(f'{args.save_dir_model}/best_model_{args.model_name}.h5') # Getting best weights based on saved validation model
     # model.fit(dataset['train'], epochs=50,
@@ -166,21 +150,6 @@ def main(args):
    # save_tf_lite_model(model)
     save_quantified_model(model, dataset) # Does not support keras.softmax beacuse it uses tf.reduce_max
     #show_predictions(model, dataset['val'], datagenerator.val_data_size, datagenerator.get_indx_to_color())
-=======
-    # continue training
-   
-   # model.load_weights(f'{args.save_dir_model}/best_model_unet.h5') # Getting best weights based on saved validation model
-    model.fit(dataset['train'], epochs=25,
-                        steps_per_epoch=STEPS_PER_EPOCH,
-                        validation_steps=VALIDATION_STEPS,
-                        validation_data=dataset['val'],
-                        callbacks=callbacks)
-
-    model.load_weights(f'{args.save_dir_model}/best_model_unet.h5') # Getting best weights based on saved validation model
-    save_tf_lite_model(model)
-    save_quantified_model(model, dataset) # Does not support keras.softmax beacuse it uses tf.reduce_max
-    show_predictions(model, dataset['val'], datagenerator.val_data_size, datagenerator.get_indx_to_color())
->>>>>>> f9b422f478b10ac3c8a9f3adc4a6cf1e3bff2675
 
 if __name__ == '__main__':
     print(__doc__)
