@@ -200,8 +200,8 @@ def predict_trajectory(name:str, obs:tuple, iterations:int, save_dir:str):
                 line = open(label).readlines()
                 if len(line) == 1:
                     line = [float(l) for l in line[0].replace('\n','').split(' ')]
-                    cx = line[1] + line[3] # line[1] + (line[3] - line[1])
-                    cy = line[2] + line[4] # line[2] + (line[4] - line[2])
+                    cx = line[1]
+                    cy = line[2] 
                     data[str(i)].append((cx, cy))
                 elif len(line) > 1:
                     best_acc = 0.0
@@ -210,8 +210,8 @@ def predict_trajectory(name:str, obs:tuple, iterations:int, save_dir:str):
                         l = [float(l) for l in l.replace('\n','').split(' ')]
                         if l[5] > best_acc:
                             best_acc = l[5]
-                            cx = l[1] + l[3]
-                            cy = l[2] + l[4]
+                            cx = l[1]
+                            cy = l[2]
                     data[str(i)].append((cx, cy))
                 else:
                     raise ValueError(f'Line is unknown, got {line}')
@@ -224,9 +224,18 @@ def predict_trajectory(name:str, obs:tuple, iterations:int, save_dir:str):
         label, = plt.plot(xs, ys)
         legends.append(label)
         names.append(f'Iteration {i}')
-
         start_dot, = plt.plot(d[0, 0], d[0, 1], 'go', markersize=10) 
         end_dot, = plt.plot(d[-1, 0], d[-1, 1], 'bo', markersize=10)
+
+        filename = f'{save_dir}/{name}_{i+1}.mp4'
+        cap = cv2.VideoCapture(filename)
+        ret, frame = cap.read()
+        im = frame.copy()
+        h, w = im.shape[:2]
+        for x, y in zip(xs, ys):
+            x, y = int(x * w), int(y * h)
+            cv2.circle(im, (x, y), 3, (0,0,255), cv2.FILLED)
+        cv2.imwrite(f'{save_dir}/{name}_{i+1}.png', im)
     
     legends.extend([start_dot, end_dot])
     names.extend(['start', 'End'])
@@ -248,6 +257,7 @@ def predict_trajectory(name:str, obs:tuple, iterations:int, save_dir:str):
 def get_obstacle(filename:str):
     cap = cv2.VideoCapture(filename)
     ret, frame = cap.read()
+    image = frame.copy()
 
     bbox_widget = BBoxWidget(image=frame)
     while True:
@@ -266,20 +276,20 @@ def get_obstacle(filename:str):
     ymax = ymax/im_h
 
     cv2.destroyAllWindows()
-    return (xmin, ymin, xmax, ymax)
+    return (xmin, ymin, xmax, ymax), image
 
 
 if __name__ == '__main__':
     print(__doc__)
     start_time = time.time()
 
-    obs = get_obstacle('data_analyse/data/test_wall_right/wall_right_1.mp4')
+    obs, image = get_obstacle('data_analyse/data/test_box_left/box_left_1.mp4')
 
     data = predict_trajectory(
-        name='wall_right',
+        name='box_left',
         obs=obs,
-        iterations=4,
-        save_dir='data_analyse/data/test_wall_right'
+        iterations=3,
+        save_dir='data_analyse/data/test_box_left'
     )
 
     end_time = time.time() - start_time
