@@ -7,6 +7,7 @@
 | Iteration 1 | Iteration 2 | Iteration 3 |
 |:-----------:|:-----------:|:-----------:|
 | ![](assets/test_box_left/01.gif) | ![](assets/test_box_left/02.gif) | ![](assets/test_box_left/03.gif) |
+| ![](assets/test_box_left/01.png) | ![](assets/test_box_left/02.png) | ![](assets/test_box_left/03.png) |
 
 | Obstacle Collisions | Obstacle Avoidance ICO | Trajectory |
 |:-------------------:|:----------------------:|:----------:|
@@ -17,6 +18,7 @@
 | Iteration 1 | Iteration 2 | Iteration 3 |
 |:-----------:|:-----------:|:-----------:|
 | ![](assets/test_box_right/01.gif) | ![](assets/test_box_right/02.gif) | ![](assets/test_box_right/03.gif) |
+| ![](assets/test_box_right/01.png) | ![](assets/test_box_right/02.png) | ![](assets/test_box_right/03.png) |
 
 | Obstacle Collisions | Obstacle Avoidance ICO | Trajectory |
 |:-------------------:|:----------------------:|:----------:|
@@ -27,6 +29,7 @@
 | Iteration 1 | Iteration 2 | Iteration 3 |
 |:-----------:|:-----------:|:-----------:|
 | ![](assets/test_wall_left/01.gif) | ![](assets/test_wall_left/02.gif) | ![](assets/test_wall_left/03.gif) |
+| ![](assets/test_wall_left/01.png) | ![](assets/test_wall_left/02.png) | ![](assets/test_wall_left/03.png) |
 
 | Obstacle Collisions | Obstacle Avoidance ICO | Trajectory |
 |:-------------------:|:----------------------:|:----------:|
@@ -36,7 +39,8 @@
 
 | Iteration 1 | Iteration 2 | Iteration 3 | Iteration 4 |
 |:-----------:|:-----------:|:-----------:|:-----------:|
-| ![](assets/test_wall_right/01.gif) | ![](assets/test_wall_right/02.gif) | ![](assets/test_wall_right/03.gif) | ![](assets/test_wall_right/03.gif) |
+| ![](assets/test_wall_right/01.gif) | ![](assets/test_wall_right/02.gif) | ![](assets/test_wall_right/03.gif) | ![](assets/test_wall_right/04.gif) |
+| ![](assets/test_wall_right/01.png) | ![](assets/test_wall_right/02.png) | ![](assets/test_wall_right/03.png) | ![](assets/test_wall_right/04.png) |
 
 | Obstacle Collisions | Obstacle Avoidance ICO | Trajectory |
 |:-------------------:|:----------------------:|:----------:|
@@ -49,6 +53,7 @@
 | Iteration 1 | Iteration 2 | Iteration 3 |
 |:-----------:|:-----------:|:-----------:|
 | ![](assets/test_human_left/01.gif) | ![](assets/test_human_left/02.gif) | ![](assets/test_human_left/03.gif) |
+| ![](assets/test_human_left/01.png) | ![](assets/test_human_left/02.png) | ![](assets/test_human_left/03.png) |
 
 | Reflective Signal | Following ICO | Trajectory |
 |:-------------------:|:----------------------:|:----------:|
@@ -59,6 +64,7 @@
 | Iteration 1 | Iteration 2 | Iteration 3 |
 |:-----------:|:-----------:|:-----------:|
 | ![](assets/test_human_right/01.gif) | ![](assets/test_human_right/02.gif) | ![](assets/test_human_right/03.gif) |
+| ![](assets/test_human_right/01.png) | ![](assets/test_human_right/02.png) | ![](assets/test_human_right/03.png) |
 
 | Reflective Signal | Following ICO | Trajectory |
 |:-------------------:|:----------------------:|:----------:|
