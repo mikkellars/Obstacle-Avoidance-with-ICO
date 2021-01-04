@@ -1,52 +1,65 @@
 # Experiments
 
-## Test 01 - Simple Obstacle Avoidance with Wall
+## Obstacle Avoidance
+
+### Left Obstacle Avoidance with Box
 
 | Iteration 1 | Iteration 2 | Iteration 3 |
 |:-----------:|:-----------:|:-----------:|
-| ![](assets/test1/01.gif) | ![](assets/test1/02.gif) | ![](assets/test1/03.gif) |
+| ![](assets/test_box_left/01.gif) | ![](assets/test_box_left/02.gif) | ![](assets/test_box_left/03.gif) |
 
-| Trajectory |
-|:----------:|
-| ![](assets/test1/trajectory.png) |
+| Obstacle Collisions | Obstacle Avoidance ICO | Trajectory |
+|:-------------------:|:----------------------:|:----------:|
+| ![](assets/test_box_left/obs_cols.png) | ![](assets/test_box_left/obs_icos.png) | ![](assets/test_box_left/trajectory.png) 
 
-
-## Test 02 - Left Obstacle Avoidance with Box
-
-| Iteration 1 | Iteration 2 | Iteration 3 | Iteration 4 |
-|:-----------:|:-----------:|:-----------:|:-----------:|
-| ![](assets/test_box_left/01.gif) | ![](assets/test_box_left/02.gif) | ![](assets/test_box_left/03.gif) | ![](assets/test_box_left/04.gif) |
-
-| Trajectory |
-|:----------:|
-| ![](assets/test_box_left/trajectory.png) |
-
-## Test 03 - Right Obstacle Avoidance with Box
+### Right Obstacle Avoidance with Box
 
 | Iteration 1 | Iteration 2 | Iteration 3 |
 |:-----------:|:-----------:|:-----------:|
 | ![](assets/test_box_right/01.gif) | ![](assets/test_box_right/02.gif) | ![](assets/test_box_right/03.gif) |
 
-| Trajectory |
-|:----------:|
-| ![](assets/test_box_right/trajectory.png) |
+| Obstacle Collisions | Obstacle Avoidance ICO | Trajectory |
+|:-------------------:|:----------------------:|:----------:|
+| ![](assets/test_box_right/obs_cols.png) | ![](assets/test_box_right/obs_icos.png) | ![](assets/test_box_right/trajectory.png) |
 
-## Test 04 - Left Obstacle Avoidance with Wall
+### Left Obstacle Avoidance with Wall
 
-| Iteration 1 | Iteration 2 | Iteration 3 | Iteration 4 | Iteration 5 | Iteration 6 |
-|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|
-| ![](assets/test_wall_left/01.gif) | ![](assets/test_wall_left/02.gif) | ![](assets/test_wall_left/03.gif) | ![](assets/test_wall_left/04.gif) | ![](assets/test_wall_left/05.gif) | ![](assets/test_wall_left/06.gif) |
+| Iteration 1 | Iteration 2 | Iteration 3 |
+|:-----------:|:-----------:|:-----------:|
+| ![](assets/test_wall_left/01.gif) | ![](assets/test_wall_left/02.gif) | ![](assets/test_wall_left/03.gif) |
 
-| Trajectory |
-|:----------:|
-| ![](assets/test_wall_left/trajectory.png) |
+| Obstacle Collisions | Obstacle Avoidance ICO | Trajectory |
+|:-------------------:|:----------------------:|:----------:|
+| ![](assets/test_wall_left/obs_col.png) | ![](assets/test_wall_left/obs_icos.png) | ![](assets/test_wall_left/trajectory.png) 
 
-## Test 05 - Right Obstacle Avoidance with Wall
+### Right Obstacle Avoidance with Wall
 
 | Iteration 1 | Iteration 2 | Iteration 3 | Iteration 4 |
 |:-----------:|:-----------:|:-----------:|:-----------:|
-| ![](assets/test_wall_right/01.gif) | ![](assets/test_wall_right/02.gif) | ![](assets/test_wall_right/03.gif) | ![](assets/test_wall_right/04.gif) |
+| ![](assets/test_wall_right/01.gif) | ![](assets/test_wall_right/02.gif) | ![](assets/test_wall_right/03.gif) | ![](assets/test_wall_right/03.gif) |
 
-| Trajectory |
-|:----------:|
-| ![](assets/test_wall_right/trajectory.png) |
+| Obstacle Collisions | Obstacle Avoidance ICO | Trajectory |
+|:-------------------:|:----------------------:|:----------:|
+| ![](assets/test_wall_right/obs_col.png) | ![](assets/test_wall_right/obs_icos.png) | ![](assets/test_wall_right/trajectory.png) 
+
+## Human Following
+
+### Left Human Following
+
+| Iteration 1 | Iteration 2 | Iteration 3 |
+|:-----------:|:-----------:|:-----------:|
+| ![](assets/test_human_left/01.gif) | ![](assets/test_human_left/02.gif) | ![](assets/test_human_left/03.gif) |
+
+| Reflective Signal | Following ICO | Trajectory |
+|:-------------------:|:----------------------:|:----------:|
+| ![](assets/test_human_left/ico_human_col.png) | ![](assets/test_human_left/human_mc.png) | ![](assets/test_human_left/trajectory.png)
+
+### Right Human Following
+
+| Iteration 1 | Iteration 2 | Iteration 3 |
+|:-----------:|:-----------:|:-----------:|
+| ![](assets/test_human_right/01.gif) | ![](assets/test_human_right/02.gif) | ![](assets/test_human_right/03.gif) |
+
+| Reflective Signal | Following ICO | Trajectory |
+|:-------------------:|:----------------------:|:----------:|
+| ![](assets/test_human_right/human_col.png) | ![](assets/test_human_right/human_mc.png) | ![](assets/test_human_right/trajectory.png)

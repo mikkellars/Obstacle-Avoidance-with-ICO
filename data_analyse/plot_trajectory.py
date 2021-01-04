@@ -193,15 +193,28 @@ def predict_trajectory(name:str, obs:tuple, iterations:int, save_dir:str):
     for i in range(iterations):
         data[str(i)] = list()
     
-    for l in labels:
+    for label in labels:
         for i in range(iterations):
             f = f'{folder}/{name}_{i+1:01d}'
-            if l.startswith(f):
-                line = open(l).readlines()[0].replace('\n','').split(' ')
-                line = [float(l) for l in line]
-                cx = line[1] + line[3] # line[1] + (line[3] - line[1])
-                cy = line[2] + line[4] # line[2] + (line[4] - line[2])
-                data[str(i)].append((cx, cy))
+            if label.startswith(f):
+                line = open(label).readlines()
+                if len(line) == 1:
+                    line = [float(l) for l in line[0].replace('\n','').split(' ')]
+                    cx = line[1] + line[3] # line[1] + (line[3] - line[1])
+                    cy = line[2] + line[4] # line[2] + (line[4] - line[2])
+                    data[str(i)].append((cx, cy))
+                elif len(line) > 1:
+                    best_acc = 0.0
+                    cx, cy = 0, 0
+                    for l in line:
+                        l = [float(l) for l in l.replace('\n','').split(' ')]
+                        if l[5] > best_acc:
+                            best_acc = l[5]
+                            cx = l[1] + l[3]
+                            cy = l[2] + l[4]
+                    data[str(i)].append((cx, cy))
+                else:
+                    raise ValueError(f'Line is unknown, got {line}')
 
     legends, names = list(), list()
     for i in range(iterations):
@@ -220,8 +233,8 @@ def predict_trajectory(name:str, obs:tuple, iterations:int, save_dir:str):
 
     plt.grid()
     plt.legend(legends, names)
-    plt.xlabel('Width of image [pixels]')
-    plt.ylabel('Height of image [pixels]')
+    plt.xlabel('Width of image [normalized pixels]')
+    plt.ylabel('Height of image [normalized pixels]')
     
     # plt.Rectangle((obs[0], obs[1]), obs[2] - obs[0], obs[3] - obs[1], fill=True, edgecolor=(1,0,0), linewidth=2.5)
     currentAxis = plt.gca()
@@ -260,13 +273,13 @@ if __name__ == '__main__':
     print(__doc__)
     start_time = time.time()
 
-    obs = get_obstacle('data_analyse/data/test_box_right/box_right_1.mp4')
+    obs = get_obstacle('data_analyse/data/test_wall_right/wall_right_1.mp4')
 
     data = predict_trajectory(
-        name='box_right',
+        name='wall_right',
         obs=obs,
-        iterations=3,
-        save_dir='data_analyse/data/test_box_right'
+        iterations=4,
+        save_dir='data_analyse/data/test_wall_right'
     )
 
     end_time = time.time() - start_time
