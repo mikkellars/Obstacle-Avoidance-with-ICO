@@ -12,11 +12,11 @@ input_mean = 127.5
 input_std = 127.5
 
 colors = np.array([
-    [255, 255, 0],
-    [0, 0, 255],	# floor - blue
-    [0, 255, 0],    # person - green
-    [255, 0, 0],    # box	- red
-    [0, 0, 0],      # others - black
+    [0, 255, 255],  # Wall
+    [0, 0, 255],	# floor
+    [0, 255, 0],    # person
+    [255, 0, 0],    # box
+    [0, 0, 0],      # others
 ])
 
 

@@ -147,19 +147,21 @@ def main():
         log_human.write_data(i, [left, right, left_human_ico.weight_predic, right_human_ico.weight_predic, left_human_val, right_human_val,])
         log_human_col.write_data(i, [1 if reflect == -1 else 0, 1 if reflect == 1 else 0])
 
-        # # Running both obstacle avoidance and human following
-        # left_mc_val = 50 * (left_obs_val + right_human_val)
-        # right_mc_val = 50 * (right_obs_val + left_human_val)
+        # # Running obstacle avoidance
+        # left_mc_val = 100 * left_obs_val
+        # right_mc_val = 100 * right_obs_val
 
-        # Running only human following
-        if len(scores) > 0:
-            left_mc_val = 100 * (right_human_val)
-            right_mc_val = 100 * (left_human_val)
-        else:
-            left_mc_val = 50
-            right_mc_val = 50
+        # # Running only human following
+        # if len(scores) > 0:
+        #     left_mc_val = 100 * (right_human_val)
+        #     right_mc_val = 100 * (left_human_val)
+        # else:
+        #     left_mc_val = 50
+        #     right_mc_val = 50
         
-
+        # Running both obstacle avoidance and human following
+        left_mc_val = 50 * (left_obs_val + right_human_val)
+        right_mc_val = 50 * (right_obs_val + left_human_val)
 
         # # TEST!
         # left_mc_val = 0
