@@ -44,6 +44,7 @@ This repository contains the code for the 5 ETCS course Project in Artificial In
 |:----------:|
 | ![](data_analyse/assets/test_human_box/trajectory.png)
 
+<!--
 | Reflective Signal | Following ICO |
 |:-------------------:|:----------------------:|
 | ![](data_analyse/assets/test_human_box/human_col.png) | ![](data_analyse/assets/test_human_box/human_mc.png) |
@@ -51,3 +52,4 @@ This repository contains the code for the 5 ETCS course Project in Artificial In
 | Obstacle Collisions | Obstacle Avoidance ICO |
 |:-------------------:|:----------------------:|
 | ![](data_analyse/assets/test_human_box/obs_cols.png) | ![](data_analyse/assets/test_human_box/obs_icos.png) |
+-->
