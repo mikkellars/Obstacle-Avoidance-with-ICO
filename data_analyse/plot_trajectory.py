@@ -195,7 +195,7 @@ def predict_trajectory(name:str, obs:tuple, iterations:int, save_dir:str):
     
     for label in labels:
         for i in range(iterations):
-            f = f'{folder}/{name}_{i+1:01d}'
+            f = f'{folder}/{name}_{i+1:02d}'
             if label.startswith(f):
                 line = open(label).readlines()
                 if len(line) == 1:
@@ -227,7 +227,7 @@ def predict_trajectory(name:str, obs:tuple, iterations:int, save_dir:str):
         start_dot, = plt.plot(d[0, 0], d[0, 1], 'go', markersize=10) 
         end_dot, = plt.plot(d[-1, 0], d[-1, 1], 'bo', markersize=10)
 
-        filename = f'{save_dir}/{name}_{i+1}.mp4'
+        filename = f'{save_dir}/{name}_{i+1:02d}.mp4'
         cap = cv2.VideoCapture(filename)
         ret, frame = cap.read()
         im = frame.copy()
@@ -247,7 +247,10 @@ def predict_trajectory(name:str, obs:tuple, iterations:int, save_dir:str):
     
     # plt.Rectangle((obs[0], obs[1]), obs[2] - obs[0], obs[3] - obs[1], fill=True, edgecolor=(1,0,0), linewidth=2.5)
     currentAxis = plt.gca()
-    currentAxis.add_patch(Rectangle((obs[0], obs[1]), obs[2] - obs[0], obs[3] - obs[1], fill=True, alpha=1, color='r'))
+    # currentAxis.add_patch(Rectangle((obs[0], obs[1]), obs[2] - obs[0], obs[3] - obs[1], fill=True, alpha=1, color='r'))
+    h, w = 1080, 1920
+    currentAxis.add_patch(Rectangle((1058/w, 524/h), 100/w, 80/h, fill=True, alpha=1, color='r'))
+    currentAxis.add_patch(Rectangle((1299/w, 904/h), 352/w, 83/h, fill=True, alpha=1, color='b'))
     
     plt.savefig(f'{save_dir}/trajectory.png')
     plt.show()
@@ -283,13 +286,13 @@ if __name__ == '__main__':
     print(__doc__)
     start_time = time.time()
 
-    obs, image = get_obstacle('data_analyse/data/test_box_left/box_left_1.mp4')
+    obs, image = get_obstacle('data_analyse/data/test_human_box/human_box_01.mp4')
 
     data = predict_trajectory(
-        name='box_left',
+        name='human_box',
         obs=obs,
         iterations=3,
-        save_dir='data_analyse/data/test_box_left'
+        save_dir='data_analyse/data/test_human_box'
     )
 
     end_time = time.time() - start_time

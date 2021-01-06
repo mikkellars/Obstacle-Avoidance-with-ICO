@@ -10,16 +10,18 @@ import numpy as np
 
 if __name__ == "__main__":
 
+    folder = 'pi_control/logs/combined_hum_box'
+
     # Obstacle collision plot
     obs_col_fig = plt.figure()
-    obs_col_fig.suptitle('Obstacle collisions detected')
+    # obs_col_fig.suptitle('Obstacle collisions detected')
     obs_col_fig.tight_layout()
     obs_col_ax1 = obs_col_fig.add_subplot(2,1,1)
     obs_col_ax2 = obs_col_fig.add_subplot(2,1,2)
 
     # Left right plot
     lr_fig = plt.figure()
-    lr_fig.suptitle('Obstacle avoidance')
+    # lr_fig.suptitle('Obstacle avoidance')
     lr_fig.tight_layout()
     lr_ax1 = lr_fig.add_subplot(3,1,1)
     lr_ax2 = lr_fig.add_subplot(3,1,2)
@@ -27,7 +29,7 @@ if __name__ == "__main__":
 
     # Difference plot
     human_fig = plt.figure()
-    human_fig.suptitle('Human following')
+    # human_fig.suptitle('Human following')
     human_fig.tight_layout()
     human_ax1 = human_fig.add_subplot(3,1,1)
     human_ax2 = human_fig.add_subplot(3,1,2)
@@ -35,7 +37,7 @@ if __name__ == "__main__":
 
     # Human collision plot
     human_col_fig = plt.figure()
-    human_col_fig.suptitle('Human collisions detected')
+    # human_col_fig.suptitle('Human collisions detected')
     human_col_fig.tight_layout()
     human_col_ax1 = human_col_fig.add_subplot(2,1,1)
     human_col_ax2 = human_col_fig.add_subplot(2,1,2)
@@ -45,7 +47,8 @@ if __name__ == "__main__":
         # Obstacle collision plot
         # --------------
 
-        graph_data = open('pi_control/logs/obs_col.txt', 'r').read()
+        # graph_data = open('pi_control/logs/obs_col.txt', 'r').read()
+        graph_data = open(f'{folder}/obs_col.txt', 'r').read()
         lines = graph_data.split('\n')
 
         xs = list()
@@ -67,17 +70,21 @@ if __name__ == "__main__":
         obs_col_ax1.clear()
         obs_col_ax1.plot(xs, col_lefts)
         obs_col_ax1.set_title('Left')
+        obs_col_ax1.set_ylabel('Reflex')
         obs_col_ax1.set_xticks([])
 
         obs_col_ax2.clear()
         obs_col_ax2.plot(xs, col_rights)
         obs_col_ax2.set_title('Right')
+        obs_col_ax2.set_ylabel('Reflex')
+        obs_col_ax2.set_xlabel('Iterations')
 
         # --------------------
         # Left right ICOs plot
         # --------------------
 
-        graph_data = open('pi_control/logs/left_right.txt', 'r').read()
+        # graph_data = open('pi_control/logs/left_right.txt', 'r').read()
+        graph_data = open(f'{folder}/left_right.txt', 'r').read()
         lines = graph_data.split('\n')
 
         xs = list()
@@ -107,6 +114,7 @@ if __name__ == "__main__":
         lr_ax1.plot(xs, in_lefts, label='left')
         lr_ax1.plot(xs, in_rights, label='right')
         lr_ax1.set_title('Input')
+        lr_ax1.set_ylabel('Height of image\n[normalized pixels]')
         lr_ax1.set_xticks([])
         lr_ax1.legend()
 
@@ -115,6 +123,7 @@ if __name__ == "__main__":
         lr_ax2.plot(xs, w_lefts, label='left')
         lr_ax2.plot(xs, w_rights, label='right')
         lr_ax2.set_title('Weight')
+        lr_ax2.set_ylabel('Weight')
         lr_ax2.set_xticks([])
         lr_ax2.legend()
 
@@ -123,13 +132,16 @@ if __name__ == "__main__":
         lr_ax3.plot(xs, o_lefts, label='left')
         lr_ax3.plot(xs, o_rights, label='right')
         lr_ax3.set_title('Output')
+        lr_ax3.set_ylabel('Motor PWM')
+        lr_ax3.set_xlabel('Iterations')
         lr_ax3.legend()
 
         # --------
         # Human ICOs
         # --------
 
-        graph_data = open('pi_control/logs/human.txt', 'r').read()
+        # graph_data = open('pi_control/logs/human.txt', 'r').read()
+        graph_data = open(f'{folder}/human.txt', 'r').read()
         lines = graph_data.split('\n')
 
         xs = list()
@@ -159,6 +171,7 @@ if __name__ == "__main__":
         human_ax1.plot(xs, in_lefts, label='left')
         human_ax1.plot(xs, in_rights, label='right')
         human_ax1.set_title('Input')
+        human_ax1.set_ylabel('Height of image\n[normalized pixels]')
         human_ax1.set_xticks([])
         human_ax1.legend()
 
@@ -167,6 +180,7 @@ if __name__ == "__main__":
         human_ax2.plot(xs, w_lefts, label='left')
         human_ax2.plot(xs, w_rights, label='right')
         human_ax2.set_title('Weight')
+        human_ax2.set_ylabel('Weight')
         human_ax2.set_xticks([])
         human_ax2.legend()
 
@@ -175,13 +189,16 @@ if __name__ == "__main__":
         human_ax3.plot(xs, o_lefts, label='left')
         human_ax3.plot(xs, o_rights, label='right')
         human_ax3.set_title('Output')
+        human_ax3.set_ylabel('Motor PWM')
+        human_ax3.set_xlabel('Iterations')
         human_ax3.legend()
 
         # --------------
         # Human collision plot
         # --------------
 
-        graph_data = open('pi_control/logs/human_col.txt', 'r').read()
+        # graph_data = open('pi_control/logs/human_col.txt', 'r').read()
+        graph_data = open(f'{folder}/human_col.txt', 'r').read()
         lines = graph_data.split('\n')
 
         xs = list()
@@ -203,11 +220,14 @@ if __name__ == "__main__":
         human_col_ax1.clear()
         human_col_ax1.plot(xs, col_lefts)
         human_col_ax1.set_title('Left')
+        human_col_ax1.set_ylabel('Reflex')
         human_col_ax1.set_xticks([])
 
         human_col_ax2.clear()
         human_col_ax2.plot(xs, col_rights)
         human_col_ax2.set_title('Right')
+        human_col_ax2.set_ylabel('Reflex')
+        human_col_ax2.set_xlabel('Iterations')
 
     ani = animation.FuncAnimation(obs_col_fig, animate, interval=1000)
     ani = animation.FuncAnimation(lr_fig, animate, interval=1000)
