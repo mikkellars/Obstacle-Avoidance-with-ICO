@@ -2,6 +2,12 @@
 
 This repository contains the code for the 5 ETCS course Project in Artificial Intelligence.
 
+Programming a robot the traditional way to solve problems is a difficult task. Making the robot learn to solve a problems is a more robust way as the robot can adapt to its environment. In this project, a system for avoiding obstacle and following a target for differential drive mobile robot is developed. The system is based on input correlation learning which is an unsupervised machine learning method, making the system capable of learning its environment it is deployed in. The system was deployed on a small differential drive mobile robot containing a mono camera, a Raspberry Pi 4, a Matrix Voice and an Edge TPU.
+
+The mobile robot learned to navigate in a indoor environment at the Technical Faculty at Southern University of Denmark, here it was able to locate a person, i.e. a target, by the use of computer vision. Furthermore, it learned to avoid static obstacles and drive around them in a smoothly manner.
+
+This project shows, how a simple system can learn to smoothly navigate in an indoor environment. The system could be used create a more interaction trash disposal option, thus, instead of having a static trashcan a mobile robot with a trashcan could be setup. Further applications could also be added, e.g. a robot arm to collect forgotten trash.
+
 ## Obstacle avoidance
 
 | Iteration 1 | Iteration 2 | Iteration 3 |
